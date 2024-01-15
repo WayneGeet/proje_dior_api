@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
-from projects.views import ProjectModelViewSet, LikesModelViewSet
+from projects.views import ProjectModelViewSet, ToggleLikeView
 from users import views as userview
 from rest_framework import routers
 from user_profile.views import ProfileModelViewSet
@@ -14,10 +14,10 @@ from rest_framework_simplejwt.views import (
 
 router = routers.DefaultRouter()
 router.register(r"users/profiles", ProfileModelViewSet)
-router.register(r"likes", LikesModelViewSet)
 router.register(r"projects", ProjectModelViewSet)
 
 urlpatterns = [
+    path('projects/<int:pk>/like/', ToggleLikeView.as_view(), name='toggle_like'),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("", include(router.urls)),

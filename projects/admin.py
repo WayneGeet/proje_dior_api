@@ -1,8 +1,6 @@
 from django.contrib import admin
 from leaflet.admin import LeafletGeoAdmin
-from .models import Project, Likes  # Import your model
-
-admin.site.register(Likes)
+from .models import Project  # Import your model
 
 
 @admin.register(Project)

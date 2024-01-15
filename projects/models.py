@@ -7,11 +7,6 @@ User = get_user_model()
 # Create your models here.
 
 
-class YesProjects(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(approved=True)
-
-
 def upload_to(instance, filename):
     return 'images/{filename}'.format(filename=filename)
 
@@ -23,6 +18,9 @@ class Project(gis_models.Model):
         ("execution", "execution"),
         ("closing", "closing")
     )
+    likes = gis_models.ManyToManyField(
+        User, related_name="liked_projects", blank=True)
+    likes_count = models.PositiveIntegerField(default=0)
     location = gis_models.PointField()
     name = gis_models.CharField(
         verbose_name="name of the project", max_length=255, unique=True)
@@ -52,18 +50,3 @@ class Project(gis_models.Model):
     # def get_absolute_url(self):
     #     from django.urls import reverse
     #     return reverse(views.ProjectModelViewSet, kwargs={"pk": self.id})
-
-
-class Likes(models.Model):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="project_likes")
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user_likes")
-
-    comment = models.TextField(max_length=200, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.user.first_name}"
-
-    class Meta:
-        unique_together = ('user', 'project')

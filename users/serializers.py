@@ -1,8 +1,6 @@
-from projects.models import Project, Likes
+from projects.models import Project
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
-from user_profile.serializers import ProfileSerializer
-from user_profile.models import Profile
 from rest_framework.validators import ValidationError
 
 
@@ -23,14 +21,14 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     projects = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Project.objects.all())
-    user_likes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Likes.objects.all())
+        many=True, read_only=True)
+    liked_projects = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'email', 'first_name',
-                  'last_name', 'id_no', 'password', 'projects', 'likes',)
+                  'last_name', 'id_no', 'password', 'projects', 'liked_projects')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
