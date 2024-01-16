@@ -9,6 +9,7 @@ class Profile(models.Model):
     photo = models.ImageField(default="default.jpg", upload_to="users")
     county = models.CharField(
         max_length=50, verbose_name="Name of County", null=True)
+    # slug = models.SlugField(default="", null=False)
 
     def __str__(self):
         if self.user.first_name.endswith("s"):
