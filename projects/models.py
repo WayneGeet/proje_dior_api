@@ -41,6 +41,10 @@ class Project(gis_models.Model):
     # approved_projects = YesProjects()
     objects = models.Manager()
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse("project-detail", kwargs={"pk": self.pk})
+
     class Meta:
         ordering = ("-start_date",)
 

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from .models import Profile
 from .serializers import ProfileSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
-from django.http import JsonResponse
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class IsOwnerOrAdminPermission(BasePermission):
@@ -15,6 +15,7 @@ class IsOwnerOrAdminPermission(BasePermission):
 class ProfileModelViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
+    parser_classes = (MultiPartParser, FormParser,)
     # permission_classes = (IsAuthenticated,)
 
 

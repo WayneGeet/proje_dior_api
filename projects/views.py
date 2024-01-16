@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
+# from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 
@@ -25,8 +25,9 @@ class ProjectModelViewSet(ModelViewSet):
     queryset = Project.objects.all()
     parser_classes = (MultiPartParser, FormParser,)
     permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name', 'about', 'county', 'budget', 'project_type']
+    filter_backends = [filters.SearchFilter]
+    # filterset_fields = ['name', 'about', 'county', 'budget', 'project_type']
+    search_fields = ['name', 'about', 'county', 'budget', 'project_type']
 
     # def get_queryset(self):
     #     queryset = Project.objects.all()
@@ -38,15 +39,17 @@ class ProjectModelViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    # def get_permissions(self):
-    #     if self.action in ["list", "retrieve"]:
-    #         permission_classes = [permissions.IsAuthenticated]
-    #     else:
-    #         permission_classes = [IsOwnerOrAdminPermission]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [IsOwnerOrAdminPermission]
+        return [permission() for permission in permission_classes]
 
 
 class ToggleLikeView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, pk):
         project = Project.objects.get(pk=pk)
         user = request.user
