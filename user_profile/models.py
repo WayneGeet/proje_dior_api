@@ -1,16 +1,21 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from PIL import Image
+
+
+def upload_to(instance, filename):
+    return 'users/{filename}'.format(filename=filename)
 
 
 class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     phone_number = models.IntegerField(null=True, blank=True)
-    photo = models.ImageField(default="default.jpg", upload_to="users")
+    photo = models.ImageField(upload_to=upload_to, null=True, blank=True,)
     county = models.CharField(
         max_length=50, verbose_name="Name of County", null=True)
-    slug = models.SlugField(default="", null=True)
+    slug = models.SlugField(null=False, unique=True)
 
     def save(self, *args, **kwargs):
         # If the slug is not set or empty, generate it using the first and last name

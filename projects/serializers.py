@@ -4,9 +4,14 @@ from .models import Project
 
 
 class ProjectSerializer(geoSerializers.GeoFeatureModelSerializer, serializers.ModelSerializer):
-    likes_count = serializers.IntegerField(read_only=True)
     user = serializers.ReadOnlyField(source='user.email')
     photo = serializers.ImageField(required=False)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['likes_count'] = instance.likes.count()
+
+        return representation
     # county = serializers.ReadOnlyField()
 
     class Meta:

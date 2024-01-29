@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +25,13 @@ if os.name == 'nt':
     os.environ['PROJ_LIB'] = os.path.join(
         VIRTUAL_ENV_BASE, r'.\Lib\site-packages\osgeo\data\proj') + ';' + os.environ['PATH']
 
-
+# load_dotenv()
+# SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-7+5g=@ulb0s-u4v2e+^)erct+f!eo72ujx-80&m15*_*#7zaks'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7+5g=@ulb0s-u4v2e+^)erct+f!eo72ujx-80&m15*_*#7zaks'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -55,7 +57,8 @@ INSTALLED_APPS = [
     'user_profile',
     'projects',
     'rest_framework_simplejwt',
-    'django_filters'
+    'django_filters',
+    'drf_spectacular'
 ]
 
 
@@ -177,7 +180,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (0, 0),
-    'DEFAULT_ZOOM': 4,
+    'DEFAULT_ZOOM': 5,
     'PLUGINS': {
         'geocoder': {
             'provider': 'leaflet',
@@ -193,16 +196,24 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
     # 'DEFAULT_PARSER_CLASSES':(
     #     'rest_framework.parsers.JSONParser',
     # )
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': "Grade The Gav",
+    'DESCRIPTION': "Grade The Gave is a groundbreaking platform empowering citizens to assess government projects for transparency and accountability. By fostering public scrutiny, this innovative tool aims to enhance the quality of governance, encouraging a collaborative approach between citizens and officials for more effective and responsible public projects.",
+    'version': "1.0.0"
+
+}
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
+    "TOKEN_OBTAIN_SERIALIZER": "users.serializers.MyTokenObtainPairSerializer",
 }
 
 # GDAL_LIBRARY_PATH = "C:\OSGeo4W\bin\gdal307.dll"

@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.utils.text import slugify
 
 
 class MyUserManager(BaseUserManager):
@@ -53,7 +54,8 @@ class User(AbstractBaseUser):
                              verbose_name="ID number")
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    slug = models.SlugField(default="", null=True)
+    slug = models.SlugField(null=False, unique=True)
+
     objects = MyUserManager()
 
     USERNAME_FIELD = "email"
@@ -61,6 +63,14 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+    def save(self, *args, **kwargs):
+        # If the slug is not set or empty, generate it using the first and last name
+        if not self.slug:
+            self.slug = slugify(
+                f"{self.first_name} {self.last_name}")
+
+        super().save(*args, **kwargs)
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

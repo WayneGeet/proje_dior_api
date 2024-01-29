@@ -1,3 +1,5 @@
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from projects.models import Project
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
@@ -5,6 +7,19 @@ from rest_framework.validators import ValidationError
 
 
 User = get_user_model()
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['slug'] = user.slug
+        # token['liked_projects'] = user.liked_projects
+        # ...
+
+        return token
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -24,11 +39,12 @@ class UserSerializer(serializers.ModelSerializer):
         many=True, read_only=True)
     liked_projects = serializers.PrimaryKeyRelatedField(
         many=True, read_only=True)
+    slug = serializers.ReadOnlyField()
 
     class Meta:
         model = User
         fields = ('id', 'email', 'first_name',
-                  'last_name', 'id_no', 'password', 'projects', 'liked_projects')
+                  'last_name', 'id_no', 'password', 'slug', 'projects', 'liked_projects')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

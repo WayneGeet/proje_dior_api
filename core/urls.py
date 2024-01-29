@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from projects.views import ProjectModelViewSet, ToggleLikeView
 from users import views as userview
 from rest_framework import routers
-from user_profile.views import ProfileCreate, ProfileDetails
+from user_profile.views import ProfileDetails
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -26,11 +26,10 @@ urlpatterns = [
     # path("users/login/", userview.UserLoginView.as_view()),
     # path("users/logout/", userview.UserLogoutView.as_view()),
     path("users/", userview.UserList.as_view()),
-    path("users/<int:pk>/", userview.UserDetails.as_view()),
-    path("users/me/", userview.UserView.as_view()),
+    path("users/<slug:slug>/", userview.UserDetails.as_view()),
+    path("user/me/", userview.UserView.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('users/profiles/create/', ProfileCreate.as_view(), "profile-create"),
     path('users/profiles/<slug:slug>/',
          ProfileDetails.as_view(), name='profile-detail'),
 ]

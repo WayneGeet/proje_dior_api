@@ -20,7 +20,6 @@ class Project(gis_models.Model):
     )
     likes = gis_models.ManyToManyField(
         User, related_name="liked_projects", blank=True)
-    likes_count = models.PositiveIntegerField(default=0)
     location = gis_models.PointField()
     name = gis_models.CharField(
         verbose_name="name of the project", max_length=255, unique=True)
@@ -32,7 +31,7 @@ class Project(gis_models.Model):
                                  default="execution", choices=PROJECT_PHASE)
     county = gis_models.CharField(max_length=100, null=True, blank=True,
                                   verbose_name="the county where the project is situated in")
-    about = gis_models.TextField(max_length=250, null=True, blank=True, )
+    about = gis_models.TextField(max_length=300, null=True, blank=True, )
     project_type = gis_models.CharField(max_length=50, null=True, blank=True)
     user = gis_models.ForeignKey(
         User, on_delete=gis_models.CASCADE, related_name="projects", null=True)

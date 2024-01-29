@@ -7,6 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import Http404
 
 
@@ -16,21 +17,9 @@ class IsOwnerOrAdminPermission(BasePermission):
         return obj == request.user or request.user.is_staff
 
 
-class ProfileCreate(APIView):
-    authentication_classes = (AllowAny,)
-
-    def post(self, request):
-        user_data = request.data
-        serializer = ProfileSerializer(data=user_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        return Response(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class ProfileDetails(APIView):
     parser_classes = (MultiPartParser, FormParser,)
-    permission_classes = (IsOwnerOrAdminPermission)
+    permission_classes = (IsOwnerOrAdminPermission,)
 
     def get_profile_by_slug(self, slug):
         try:
@@ -41,9 +30,7 @@ class ProfileDetails(APIView):
     def get(self, request, slug=None):
         profile = self.get_profile_by_slug(slug)
         serializer = ProfileSerializer(profile)
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, slug=None):
         profile = self.get_profile_by_slug(slug)
@@ -51,7 +38,7 @@ class ProfileDetails(APIView):
         serializer = ProfileSerializer(profile, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(data={"profile updated successfully"}, status=status.HTTP_204_NO_CONTENT)
         return Response(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, slug=None):

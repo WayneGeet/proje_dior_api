@@ -41,22 +41,22 @@ class UserDetails(APIView):
     permission_classes = (IsOwnerOrAdminPermission,)
     authentication_classes = (JWTAuthentication,)
 
-    def get_object(self, pk):
+    def get_object(self, slug=None):
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(slug=slug)
         except User.DoesNotExist:
             raise Http404
 
-    def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+    def put(self, request, slug=None, format=None):
+        user = self.get_object(slug)
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        user = self.get_object(pk)
+    def delete(self, request, slug=None):
+        user = self.get_object(slug)
         if user:
             user.delete()
             return Response({"message": "user delete succesful"}, status=status.HTTP_200_OK)
@@ -97,7 +97,7 @@ class UserRegisterView(APIView):
 
 
 class UserView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrAdminPermission,)
 
     def get(self, request):
         user = request.user
