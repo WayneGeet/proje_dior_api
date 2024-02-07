@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'projects',
     'rest_framework_simplejwt',
     'django_filters',
-    'drf_spectacular'
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 
@@ -190,13 +191,14 @@ LEAFLET_CONFIG = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ("rest_framework.permissions.IsAuthenticated",),
+    # 'DEFAULT_PERMISSION_CLASSES': ("rest_framework.permissions.IsAuthenticated",),
+    'DEFAULT_PERMISSION_CLASSES': ("rest_framework.permissions.AllowAny",),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     # 'DEFAULT_PARSER_CLASSES':(
     #     'rest_framework.parsers.JSONParser',
     # )
@@ -205,7 +207,10 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': "Grade The Gav",
     'DESCRIPTION': "Grade The Gave is a groundbreaking platform empowering citizens to assess government projects for transparency and accountability. By fostering public scrutiny, this innovative tool aims to enhance the quality of governance, encouraging a collaborative approach between citizens and officials for more effective and responsible public projects.",
-    'version': "1.0.0"
+    'version': "1.0.0",
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 
 }
 

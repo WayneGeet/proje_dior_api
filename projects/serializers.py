@@ -12,7 +12,6 @@ class ProjectSerializer(geoSerializers.GeoFeatureModelSerializer, serializers.Mo
         representation['likes_count'] = instance.likes.count()
 
         return representation
-    # county = serializers.ReadOnlyField()
 
     class Meta:
         geo_field = "location"

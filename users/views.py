@@ -9,9 +9,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import BasePermission, IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth import get_user_model
 from django.http import Http404
+from rest_framework import viewsets
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-
+from rest_framework.decorators import action
 
 User = get_user_model()
 
@@ -23,57 +24,83 @@ class IsOwnerOrAdminPermission(BasePermission):
         return obj == request.user or request.user.is_staff
 
 
-# @method_decorator(csrf_protect, name="dispatch")
-class UserList(APIView):
-    permission_classes = (IsAdminUser,)
-    authentication_classes = (JWTAuthentication,)
-
-    def get(self, request):
-        data = User.objects.all()
-        serializer = UserSerializer(data=data, many=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserDetails(APIView):
-    permission_classes = (IsOwnerOrAdminPermission,)
-    authentication_classes = (JWTAuthentication,)
-
-    def get_object(self, slug=None):
-        try:
-            return User.objects.get(slug=slug)
-        except User.DoesNotExist:
-            raise Http404
-
-    def put(self, request, slug=None, format=None):
-        user = self.get_object(slug)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, slug=None):
-        user = self.get_object(slug)
-        if user:
-            user.delete()
-            return Response({"message": "user delete succesful"}, status=status.HTTP_200_OK)
-        return Response({"message": "user with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserRegisterView(APIView):
+class UserModelViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = (AllowAny,)
-    authentication_classes = (JWTAuthentication,)
+    lookup_field = "slug"
+    
+    @action(detail=True, methods=["get"])
+    def me(self, request, slug):
+        user = request.user
+        print(f"{user} this is me")
+        if (user is not None):
+            serializer = UserSerializer(instance=user)
 
-    def post(self, request):
-        data = request.data
-        serializer = UserSerializer(data=data, many=False)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+
+ # @action(detail=True, methods=['post'])
+    # def set_password(self, request, pk=None):
+    #     user = self.get_object()
+    #     serializer = PasswordSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         user.set_password(serializer.validated_data['password'])
+    #         user.save()
+    #         return Response({'status': 'password set'})
+    #     else:
+    #         return Response(serializer.errors,
+    #             status=status.HTTP_400_BAD_REQUEST)
+
+# @method_decorator(csrf_protect, name="dispatch")
+# class UserList(APIView):
+
+#     def get(self, request):
+#         data = User.objects.all()
+#         serializer = UserSerializer(data=data, many=True)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserDetails(APIView):
+#     permission_classes = (IsOwnerOrAdminPermission,)
+#     authentication_classes = (JWTAuthentication,)
+
+#     def get_object(self, slug=None):
+#         try:
+#             return User.objects.get(slug=slug)
+#         except User.DoesNotExist:
+#             raise Http404
+
+#     def put(self, request, slug=None, format=None):
+#         user = self.get_object(slug)
+#         serializer = UserSerializer(user, data=request.data, partial=True)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(status=status.HTTP_204_NO_CONTENT)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, slug=None):
+#         user = self.get_object(slug)
+#         if user:
+#             user.delete()
+#             return Response({"message": "user delete succesful"}, status=status.HTTP_200_OK)
+#         return Response({"message": "user with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserRegisterView(APIView):
+#     permission_classes = (AllowAny,)
+#     authentication_classes = (JWTAuthentication,)
+
+#     def post(self, request):
+#         data = request.data
+#         serializer = UserSerializer(data=data, many=False)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class UserLoginView(APIView):
@@ -96,15 +123,15 @@ class UserRegisterView(APIView):
 #                  status=status.HTTP_200_OK)
 
 
-class UserView(APIView):
-    permission_classes = (IsOwnerOrAdminPermission,)
+# class UserView(APIView):
+#     permission_classes = (IsOwnerOrAdminPermission,)
 
-    def get(self, request):
-        user = request.user
-        print(f"{user} this is me")
-        if (user is not None):
-            # Use 'instance=user' instead of 'data=user'
-            serializer = UserSerializer(instance=user)
+#     def get(self, request):
+#         user = request.user
+#         print(f"{user} this is me")
+#         if (user is not None):
+#             # Use 'instance=user' instead of 'data=user'
+#             serializer = UserSerializer(instance=user)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"message": "unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response({"message": "unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)

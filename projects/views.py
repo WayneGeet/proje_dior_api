@@ -9,6 +9,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
 # from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 
 
 class IsOwnerOrAdminPermission(permissions.BasePermission):
@@ -29,6 +31,21 @@ class ProjectModelViewSet(ModelViewSet):
     # filterset_fields = ['name', 'about', 'county', 'budget', 'project_type']
     search_fields = ['name', 'about', 'county', 'budget', 'project_type']
 
+    @action(detail=True, methods=['post'])
+    def like_or_dislike(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        user = request.user
+        if user in project.likes.all():
+            project.likes.remove(user)
+            action = "disliked"
+        else:
+            project.likes.add(user)
+            action = "liked"
+        project.likes_count = project.likes.count()
+        project.save()
+        serializer = ProjectSerializer(project)
+        return Response({"message": f'You have {action} this project', 'project': serializer.data})
+
     # def get_queryset(self):
     #     queryset = Project.objects.all()
     #     name = self.request.query_params.get("name")
@@ -47,20 +64,20 @@ class ProjectModelViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class ToggleLikeView(APIView):
-    permission_classes = [permissions.AllowAny]
+# class ToggleLikeView(APIView):
+#     permission_classes = [permissions.AllowAny]
 
-    def post(self, request, pk):
-        project = Project.objects.get(pk=pk)
-        user = request.user
+#     def post(self, request, pk):
+#         project = Project.objects.get(pk=pk)
+#         user = request.user
 
-        if user in project.likes.all():
-            project.likes.remove(user)
-            action = "disliked"
-        else:
-            project.likes.add(user)
-            action = "liked"
-        project.likes_count = project.likes.count()  # Update likes_count
-        project.save()
-        serializer = ProjectSerializer(project)
-        return Response({"message": f'You have {action} this project', 'project': serializer.data})
+#         if user in project.likes.all():
+#             project.likes.remove(user)
+#             action = "disliked"
+#         else:
+#             project.likes.add(user)
+#             action = "liked"
+#         project.likes_count = project.likes.count()  # Update likes_count
+#         project.save()
+#         serializer = ProjectSerializer(project)
+#         return Response({"message": f'You have {action} this project', 'project': serializer.data})
