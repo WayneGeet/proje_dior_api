@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.viewsets import ModelViewSet
-# from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -27,8 +27,8 @@ class ProjectModelViewSet(ModelViewSet):
     queryset = Project.objects.all()
     parser_classes = (MultiPartParser, FormParser,)
     permission_classes = (permissions.IsAuthenticated,)
-    filter_backends = [filters.SearchFilter]
-    # filterset_fields = ['name', 'about', 'county', 'budget', 'project_type']
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_fields = ['project_type']
     search_fields = ['name', 'about', 'county', 'budget', 'project_type']
 
     @action(detail=True, methods=['post'])

@@ -20,36 +20,32 @@ class IsOwnerOrAdminPermission(BasePermission):
 
 class ProfileModelViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser,)
-    permission_classes = (IsOwnerOrAdminPermission,)
+    permission_classes = (IsAuthenticated, IsOwnerOrAdminPermission,)
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     lookup_field = "slug"
-    http_method_names = ["put", "get",]
 
-    # def get_profile_by_slug(self, slug):
-    #     try:
-    #         return Profile.objects.get(slug=slug)
-    #     except Profile.DoesNotExist:
-    #         raise Http404("Profile not found")
+    def get_profile_by_slug(self, slug):
+        try:
+            return Profile.objects.get(slug=slug)
+        except Profile.DoesNotExist:
+            raise Http404("Profile not found")
 
-    # def get(self, request, slug=None):
-    #     profile = self.get_profile_by_slug(slug)
-    #     serializer = ProfileSerializer(profile)
-    #     return Response(data=serializer.data, status=status.HTTP_200_OK)
+    def update(self, request, slug=None):
+        profile = self.get_profile_by_slug(slug)
+        data = request.data
+        serializer = ProfileSerializer(profile, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"profile updated successfully"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def put(self, request, slug=None):
-    #     profile = self.get_profile_by_slug(slug)
-    #     data = request.data
-    #     serializer = ProfileSerializer(profile, data=data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(data={"profile updated successfully"}, status=status.HTTP_204_NO_CONTENT)
-    #     return Response(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # http_method_names = ["put", "get",]
 
-    # def delete(self, request, slug=None):
-    #     profile = self.get_profile_by_slug(slug)
-    #     profile.delete()
-    #     return Response(data={"message": "profile deleted successfully"}, status=status.HTTP_200_OK)
+    def retrieve(self, request, slug=None):
+        profile = self.get_profile_by_slug(slug)
+        serializer = ProfileSerializer(profile)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     # def get_permissions(self):
     #     if self.action == "create":

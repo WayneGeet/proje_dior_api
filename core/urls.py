@@ -15,7 +15,7 @@ from rest_framework_simplejwt.views import (
 router = routers.DefaultRouter()
 router.register(r"projects", ProjectModelViewSet)
 router.register(r'users', UserModelViewSet)
-router.register(r'profiles', ProfileModelViewSet, basename='profile')
+router.register(r'profile', ProfileModelViewSet)
 
 urlpatterns = [
     # path('projects/<int:pk>/like/', ToggleLikeView.as_view(), name='toggle_like'),

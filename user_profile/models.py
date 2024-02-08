@@ -8,6 +8,10 @@ def upload_to(instance, filename):
     return 'users/{filename}'.format(filename=filename)
 
 
+def upload_to(instance, filename):
+    return 'images/{filename}'.format(filename=filename)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
